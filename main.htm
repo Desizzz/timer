@@ -29,19 +29,26 @@
         const hourId = document.getElementById('hour');
         const stopId = document.getElementById('stop');
         const repeatId = document.getElementById('repeat');
-        let repeatFl = false
-        let stop = false
+        
+        
         btn.addEventListener('click', () => {
             timer()
+            state.second = (getSecond() + getMinut() * 60)
         })
         
-        repeat.addEventListener('click', () => {
-            repeatFl = true
-        })
+        const state = {
+            repeatFl: false,
+            stop: false,
+            second: (getSecond() + getMinut() * 60)
+        }
 
+        repeat.addEventListener('click', () => {
+            state.repeatFl = true
+        })
+        
         stopId.addEventListener('click', () => {
-            stop =!stop
-            if (stop) {
+            state.stop =!state.stop
+            if (state.stop) {
                 stopId.textContent = 'Start'
             } else stopId.textContent = 'Stop'
         })
@@ -51,72 +58,53 @@
             return value
         }
         
+        
         function getMinut() {
             const value = getValue()
             const minut = parseInt(value.slice(0, value.indexOf(':')))
             return minut
         }
-
+        
         function getSecond() {
             const value = getValue()
             const second = parseInt(value.slice(value.indexOf(':')+1))
+            console.log(typeof second)
             return second
         }
+        
 
         function timer() {
-            let minut = getMinut()
-            let second = getSecond()
             btn.style.pointerEvents = 'none'
 
             let time = setInterval(() => {
-                if(repeatFl){
-                    repeatFl = false 
-                    minut = getMinut()
-                    second = getSecond()
+                console.log(state.second)
+                if(state.repeatFl){
+                    state.repeatFl = false 
+                    state.second = (getSecond() + getMinut() * 60)
                 }
 
-                if (repeatFl && stop) {
-                    repeatFl = false
-                    minut = getMinut()
-                    second = getSecond()
+                if (!state.stop) {
+                    state.second--
 
-                    if (minut - (~~(minut / 60) * 60) < 10) {
-                        minutId.innerHTML = '0' + (minut - ~~(minut / 60) * 60)
-                    } else minutId.innerHTML = minut - ~~(minut / 60) * 60
+                    hourId.innerHTML = ~~(state.second/3600)
 
-                    if (second < 10) {
-                        secondId.innerHTML = '0' + second
-                    } else secondId.innerHTML = second
+                    if(-(~~(state.second / 3600) * 60 - ~~(state.second / 60)) < 10) {
+                        minutId.innerHTML = '0' + (-(~~(state.second / 3600) * 60 - ~~(state.second / 60)))
+                    } else { minutId.innerHTML = -(~~(state.second / 3600) * 60 - ~~(state.second / 60)) }
 
-                    hourId.innerHTML = ~~(minut / 60)
-                }
+                    if(state.second % 60 < 10) {
+                        secondId.innerHTML = '0' + state.second % 60
+                    } else { secondId.innerHTML = state.second % 60 }
 
-                if (!stop) {
-                    if (minut - (~~(minut / 60) * 60) < 10) {
-                        minutId.innerHTML = '0' + (minut - ~~(minut / 60) * 60)
-                    } else minutId.innerHTML = minut - ~~(minut / 60) * 60
-
-                    if (second < 10) {
-                        secondId.innerHTML = '0' + second
-                    } else secondId.innerHTML = second
-
-                    hourId.innerHTML = ~~(minut/60)
-
-                    second--
-                    if (second == 0) {
-                        if (minut == 0 && second == 0) {
-                            console.log('Time is up!===============')
-                            btn.style.pointerEvents = 'auto'
-                            clearInterval(time)
-                        } else {
-                            minut--;
-                            second = 59;
-                        }
-
+                    if (state.second == 0) {
+                        console.log('Time is up!===============')
+                        btn.style.pointerEvents = 'auto'
+                        clearInterval(time)
                     }
-                    return second
-                }}, 1000)
-            }
+                    return state.second
+                }
+            }, 1000)
+        }
         
     </script>
 </body>
